@@ -46,7 +46,8 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ fullscreen = false })
   const getBackgroundGradient = () => {
     if (!currentTrack.colors) return 'bg-gradient-to-br from-purple-900 via-zinc-900 to-black';
     
-    return `bg-gradient-to-br from-[${currentTrack.colors.darkMuted}] via-zinc-900 to-[${currentTrack.colors.vibrant}]`;
+    // Use purple theme instead of the original colors
+    return `bg-gradient-to-br from-purple-900 via-zinc-900 to-purple-700`;
   };
   
   return (

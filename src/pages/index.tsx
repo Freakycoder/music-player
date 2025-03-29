@@ -1,196 +1,164 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { 
-  Home as HomeIcon, 
-  Search as SearchIcon, 
-  Library as LibraryIcon, 
-  Heart as HeartIcon, 
-  PlusCircle as PlusCircleIcon, 
-  Rss as RssIcon 
-} from 'lucide-react';
-import MiniPlayer from '../components/player/MiniPlayer';
+import { Play, Pause, Heart } from 'lucide-react';
+
+import MainLayout from '../components/layout/MainLayout';
+import AudioVisualizer from '../components/visualizer/AudioVisualizer';
 import { usePlayer } from '../contexts/PlayerContext';
+import { 
+  tracks, 
+  artists, 
+  recentlyPlayed, 
+  featuredPlaylists, 
+  newReleases 
+} from '../data/mockData';
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
-
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const router = useRouter();
-  const { playerState } = usePlayer();
+const HomePage = () => {
+  const { playerState, playTrack, pauseTrack } = usePlayer();
   const { currentTrack, isPlaying } = playerState;
-
-  const menuItems = [
-    { icon: HomeIcon, name: 'Home', path: '/' },
-    { icon: SearchIcon, name: 'Discover', path: '/discover' },
-    { icon: LibraryIcon, name: 'Library', path: '/library' },
-    { icon: HeartIcon, name: 'Liked Songs', path: '/liked' },
-    { icon: PlusCircleIcon, name: 'Create Playlist', path: '/playlists/create' },
-  ];
-
-  const isActive = (path: string) => {
-    return router.pathname === path;
+  const [featuredTrack, setFeaturedTrack] = useState(tracks[0]);
+  
+  // Handle play/pause for a specific track
+  const handlePlayPause = (track: typeof tracks[0]) => {
+    if (currentTrack?.id === track.id && isPlaying) {
+      pauseTrack();
+    } else {
+      playTrack(track);
+    }
   };
-
+  
   return (
-    <div className="flex h-screen bg-zinc-900 text-zinc-100 overflow-hidden">
-      {/* Sidebar */}
-      <motion.div 
-        initial={{ x: -280 }}
-        animate={{ x: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="w-64 flex-shrink-0 bg-black p-6 flex flex-col"
-      >
-        {/* Logo */}
-        <Link href="/" className="mb-8 flex items-center">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-2xl font-bold text-white"
-          >
-            WavePlay
-          </motion.div>
-        </Link>
-
-        {/* Navigation */}
-        <nav className="mb-6">
-          <ul className="space-y-2">
-            {menuItems.map((item) => (
-              <li key={item.path}>
-                <Link href={item.path} passHref>
-                  <motion.div
-                    whileHover={{ x: 4 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`flex items-center p-2 rounded-md ${
-                      isActive(item.path)
-                        ? 'bg-zinc-800 text-white'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
+    <MainLayout>
+      <div className="space-y-10">
+        {/* Featured Track with Visualizer */}
+        <section className="mb-10">
+          <div className="relative h-80 rounded-2xl overflow-hidden">
+            {/* Visualizer Background */}
+            <div className="absolute inset-0 z-0">
+              <AudioVisualizer />
+            </div>
+            
+            {/* Content Overlay */}
+            <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/70 via-black/50 to-transparent p-8 flex items-end">
+              <div className="max-w-md">
+                <h1 className="text-4xl font-bold text-white mb-2">
+                  {featuredTrack.title}
+                </h1>
+                
+                <p className="text-xl text-zinc-300 mb-6">
+                  {featuredTrack.artist}
+                </p>
+                
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => handlePlayPause(featuredTrack)}
+                    className="px-6 py-3 bg-purple-600 rounded-full text-white flex items-center font-medium hover:bg-purple-700"
                   >
-                    <item.icon className="h-5 w-5 mr-3" />
-                    <span>{item.name}</span>
-                  </motion.div>
+                    {currentTrack?.id === featuredTrack.id && isPlaying ? (
+                      <>
+                        <Pause size={20} className="mr-2" />
+                        <span>Pause</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play size={20} className="mr-2" />
+                        <span>Play</span>
+                      </>
+                    )}
+                  </button>
+                  
+                  <button className="px-6 py-3 bg-zinc-800/80 backdrop-blur-sm rounded-full text-white flex items-center font-medium">
+                    <Heart size={20} className="mr-2" />
+                    <span>Like</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Recently Played */}
+        <section>
+          <h2 className="text-2xl font-bold text-white mb-6">Recently Played</h2>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+            {recentlyPlayed.slice(0, 5).map((track) => (
+              <div key={track.id} className="group">
+                <Link href={`/player/${track.id}`}>
+                  <div className="cursor-pointer">
+                    <div className="relative aspect-square rounded-lg overflow-hidden mb-3 bg-zinc-800">
+                      <Image
+                        src={track.cover || '/images/placeholder.jpg'}
+                        alt={track.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePlayPause(track);
+                          }}
+                          className="p-3 bg-purple-600 rounded-full text-white"
+                        >
+                          {currentTrack?.id === track.id && isPlaying ? (
+                            <Pause size={24} />
+                          ) : (
+                            <Play size={24} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <h3 className="font-medium text-white truncate">{track.title}</h3>
+                    <p className="text-sm text-zinc-400 truncate">{track.artist}</p>
+                  </div>
                 </Link>
-              </li>
+              </div>
             ))}
-          </ul>
-        </nav>
-
-        {/* Playlists Section */}
-        <div className="mt-4">
-          <h3 className="text-zinc-400 text-sm uppercase font-semibold tracking-wider mb-4">
-            Your Playlists
-          </h3>
-          <ul className="space-y-2 text-zinc-400">
-            <li>
-              <Link href="/playlists/playlist1" passHref>
-                <motion.div
-                  whileHover={{ x: 4, color: "#fff" }}
-                  className="truncate hover:text-white"
-                >
-                  Weekend Vibes
-                </motion.div>
-              </Link>
-            </li>
-            <li>
-              <Link href="/playlists/playlist2" passHref>
-                <motion.div
-                  whileHover={{ x: 4, color: "#fff" }}
-                  className="truncate hover:text-white"
-                >
-                  Throwback Classics
-                </motion.div>
-              </Link>
-            </li>
-            <li>
-              <Link href="/playlists/playlist3" passHref>
-                <motion.div
-                  whileHover={{ x: 4, color: "#fff" }}
-                  className="truncate hover:text-white"
-                >
-                  Workout Mix
-                </motion.div>
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Install App button */}
-        <div className="mt-auto pt-6">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full py-2 px-4 rounded-full border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 flex items-center justify-center"
-          >
-            <RssIcon className="h-4 w-4 mr-2" />
-            <span>Install App</span>
-          </motion.button>
-        </div>
-      </motion.div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
-        <motion.div 
-          initial={{ y: -50 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
-          className="h-16 flex-shrink-0 bg-zinc-800/50 backdrop-blur-md flex items-center justify-between px-8 border-b border-zinc-800"
-        >
-          {/* Navigation Buttons */}
-          <div className="flex space-x-2">
-            <button
-              onClick={() => router.back()}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
-              </svg>
-            </button>
-            <button
-              onClick={() => router.forward()}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-              </svg>
-            </button>
           </div>
-
-          {/* User Profile */}
-          <div className="flex items-center space-x-3">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-medium"
-            >
-              A
-            </motion.div>
-            <span className="font-medium">Alex Johnson</span>
+        </section>
+        
+        {/* Featured Playlists */}
+        <section>
+          <h2 className="text-2xl font-bold text-white mb-6">Featured Playlists</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredPlaylists.map((playlist) => (
+              <div key={playlist.id} className="group">
+                <Link href={`/playlists/${playlist.id}`}>
+                  <div className="cursor-pointer">
+                    <div className="relative h-48 rounded-lg overflow-hidden mb-3 bg-zinc-800">
+                      <Image
+                        src={playlist.coverImage || '/images/placeholder.jpg'}
+                        alt={playlist.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <button className="p-3 bg-purple-600 rounded-full text-white">
+                          <Play size={24} />
+                        </button>
+                      </div>
+                      
+                      <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black to-transparent">
+                        <h3 className="font-medium text-white text-lg">{playlist.name}</h3>
+                        <p className="text-sm text-zinc-300">{playlist.tracks.length} tracks</p>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
           </div>
-        </motion.div>
-
-        {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto p-8">
-          {children}
-        </main>
-
-        {/* Now Playing Bar (conditional) */}
-        {currentTrack && (
-          <motion.div
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="h-20 bg-zinc-800/90 backdrop-blur-md border-t border-zinc-700 flex items-center px-4"
-          >
-            <MiniPlayer />
-          </motion.div>
-        )}
+        </section>
       </div>
-    </div>
+    </MainLayout>
   );
 };
 
-export default MainLayout;
+export default HomePage;
