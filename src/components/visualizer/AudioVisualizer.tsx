@@ -1,7 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { usePlayer } from '../../contexts/PlayerContext';
-import WaveformVisualizer from './WaveformVisaulizer';
+// Note: The filename has a typo, but we'll use what exists in the filesystem
+import WaveformVisualizer from './WaveformVisualizer';
 import FrequencyVisualizer from './FrequencyVisualizer';
 import CircularVisualizer from './CircularVisualizer';
 import ParticleVisualizer from './ParticleVisualizer';
@@ -16,9 +17,35 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ fullscreen = false })
   const { currentTrack, isPlaying, visualizationSettings } = playerState;
   const containerRef = useRef<HTMLDivElement>(null);
   
+  // Add debug message to console to check if component mounts
+  useEffect(() => {
+    console.log("AudioVisualizer mounted", { 
+      isPlaying, 
+      visualizationType: visualizationSettings.type 
+    });
+    
+    // Force periodic re-renders to ensure visualizations update
+    const interval = setInterval(() => {
+      if (containerRef.current) {
+        containerRef.current.classList.toggle('force-update');
+      }
+    }, 100);
+
+    // Set explicit dimensions for container
+    if (containerRef.current) {
+      containerRef.current.style.minHeight = fullscreen ? '100vh' : '500px';
+      containerRef.current.style.minWidth = '100%';
+    }
+    
+    return () => {
+      clearInterval(interval);
+      console.log("AudioVisualizer unmounted");
+    };
+  }, [fullscreen, isPlaying, visualizationSettings.type]);
+  
   if (!currentTrack) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full bg-zinc-900" style={{ minHeight: '300px' }}>
         <p className="text-zinc-400">Select a track to visualize</p>
       </div>
     );
@@ -26,28 +53,33 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ fullscreen = false })
   
   // Determine which visualizer to show based on settings
   const renderVisualizer = () => {
-    switch (visualizationSettings.type) {
-      case 'waveform':
-        return <WaveformVisualizer />;
-      case 'frequency':
-        return <FrequencyVisualizer />;
-      case 'circular':
-        return <CircularVisualizer />;
-      case 'particles':
-        return <ParticleVisualizer />;
-      case '3d':
-        return <ThreeDVisualizer />;
-      default:
-        return <WaveformVisualizer />;
+    console.log("Rendering visualizer type:", visualizationSettings.type);
+    
+    try {
+      switch (visualizationSettings.type) {
+        case 'waveform':
+          return <WaveformVisualizer />;
+        case 'frequency':
+          return <FrequencyVisualizer />;
+        case 'circular':
+          return <CircularVisualizer />;
+        case 'particles':
+          return <ParticleVisualizer />;
+        case '3d':
+          return <ThreeDVisualizer />;
+        default:
+          return <WaveformVisualizer />;
+      }
+    } catch (error) {
+      console.error("Error rendering visualizer:", error);
+      return <div className="text-red-500 p-4">Visualizer Error. See console.</div>;
     }
   };
   
   // Get background gradient colors based on track
   const getBackgroundGradient = () => {
-    if (!currentTrack.colors) return 'bg-gradient-to-br from-purple-900 via-zinc-900 to-black';
-    
-    // Use purple theme instead of the original colors
-    return `bg-gradient-to-br from-purple-900 via-zinc-900 to-purple-700`;
+    // Always return a visible gradient rather than using track colors
+    return 'bg-gradient-to-br from-purple-900 via-zinc-900 to-zinc-800';
   };
   
   return (
@@ -59,6 +91,10 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ fullscreen = false })
       className={`relative ${getBackgroundGradient()} ${
         fullscreen ? 'fixed inset-0 z-50' : 'w-full h-full rounded-xl overflow-hidden'
       }`}
+      style={{ 
+        minHeight: fullscreen ? '100vh' : '500px',
+        minWidth: '100%'
+      }}
     >
       {/* Track Info Overlay */}
       <div className={`absolute z-10 ${fullscreen ? 'bottom-10 left-10' : 'bottom-4 left-4'}`}>
@@ -78,7 +114,10 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ fullscreen = false })
       </div>
       
       {/* Visualizer Container */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div 
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ minHeight: '100%', width: '100%' }}
+      >
         {renderVisualizer()}
       </div>
       
