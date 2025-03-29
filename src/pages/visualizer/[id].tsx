@@ -17,7 +17,6 @@ import {
   Sliders as AdjustmentsIcon,
   Circle as DotsCircleHorizontalIcon,
   Columns as ViewBoardsIcon,
-//   Cube as CubeTransparentIcon,
   Palette as ColorSwatchIcon,
 } from 'lucide-react';
 
@@ -86,7 +85,6 @@ const VisualizerPage: React.FC<VisualizerPageProps> = ({ track }) => {
     { value: 'frequency', label: 'Frequency', icon: AdjustmentsIcon },
     { value: 'circular', label: 'Circular', icon: DotsCircleHorizontalIcon },
     { value: 'particles', label: 'Particles', icon: ViewBoardsIcon },
-    // { value: '3d', label: '3D', icon: CubeTransparentIcon },
   ];
   
   // Color scheme options

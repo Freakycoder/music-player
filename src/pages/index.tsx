@@ -54,7 +54,7 @@ const HomePage = () => {
                 <div className="flex space-x-4">
                   <button
                     onClick={() => handlePlayPause(featuredTrack)}
-                    className="px-6 py-3 bg-purple-600 rounded-full text-white flex items-center font-medium hover:bg-purple-700"
+                    className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-full text-white flex items-center font-medium"
                   >
                     {currentTrack?.id === featuredTrack.id && isPlaying ? (
                       <>

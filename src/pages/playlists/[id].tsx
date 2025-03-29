@@ -94,7 +94,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ playlist }) => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={playPlaylist}
-          className="bg-green-500 hover:bg-green-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg"
+          className="bg-purple-600 hover:bg-purple-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg"
         >
           <PlayIcon className="h-7 w-7" />
         </motion.button>
@@ -153,7 +153,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ playlist }) => {
                     <motion.div 
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 2 }}
-                      className="w-4 h-4 text-green-500"
+                      className="w-4 h-4 text-purple-600"
                     >
                       <span className="sr-only">Now playing</span>
                       ♫

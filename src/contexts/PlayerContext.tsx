@@ -60,43 +60,28 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const audioContextRef = useRef<AudioContext | null>(null);
   const rafIdRef = useRef<number | null>(null);
 
-  // Initialize audio system
+  // Initialize audio system - updated to work without real audio
   const initializeAudio = async (): Promise<void> => {
     try {
-      await Tone.start();
+      // Skip actual Tone.js initialization for demo
+      console.log('Mock audio system initialized');
       
-      // Create Tone.js player
-      const player = new Tone.Player().toDestination();
-      tonePlayerRef.current = player;
-      
-      // Create analyzers for visualization
-      const analyzer = new Tone.Analyser('fft', 1024);
-      const waveformAnalyzer = new Tone.Analyser('waveform', 1024);
-      
-      player.connect(analyzer);
-      player.connect(waveformAnalyzer);
-      
-      analyzerRef.current = analyzer;
-      waveformAnalyzerRef.current = waveformAnalyzer;
-      
-      // For traditional Web Audio API
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      // Set a default track immediately for demo purposes
+      if (tracks.length > 0) {
+        setPlayerState(prev => ({
+          ...prev,
+          currentTrack: tracks[0],
+        }));
       }
-      
-      console.log('Audio system initialized');
     } catch (error) {
       console.error('Failed to initialize audio system:', error);
     }
   };
 
-  // Play a track
+  // Play a track - simplified to ensure state updates properly
   const playTrack = (track: Track) => {
-    if (!tonePlayerRef.current) {
-      console.error('Tone player not initialized');
-      return;
-    }
-
+    console.log('Playing track:', track.title);
+    
     // Update player state
     setPlayerState(prev => ({
       ...prev,
@@ -108,16 +93,8 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         : prev.history,
     }));
 
-    try {
-      // In a real app, we would load the audio file
-      // For mock purposes, we'll just pretend it's playing
-      tonePlayerRef.current.start();
-
-      // Start the visualization update loop
-      startVisualizationLoop();
-    } catch (error) {
-      console.error('Failed to play track:', error);
-    }
+    // Start the visualization update loop
+    startVisualizationLoop();
   };
 
   // Pause current track
@@ -137,9 +114,8 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Resume playback
   const resumeTrack = () => {
-    if (!tonePlayerRef.current || !playerState.currentTrack) return;
+    if (!playerState.currentTrack) return;
     
-    tonePlayerRef.current.start();
     setPlayerState(prev => ({
       ...prev,
       isPlaying: true,
@@ -151,7 +127,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Seek to position
   const seekToPosition = (position: number) => {
-    if (!tonePlayerRef.current) return;
+    if (!playerState.currentTrack) return;
     
     try {
       // In a real implementation, we would seek the audio
@@ -219,12 +195,8 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Set volume
   const setVolume = (volume: number) => {
-    if (!tonePlayerRef.current) return;
-    
     // Ensure volume is between 0 and 1
     const normalizedVolume = Math.max(0, Math.min(1, volume));
-    
-    tonePlayerRef.current.volume.value = Tone.gainToDb(normalizedVolume);
     
     setPlayerState(prev => ({
       ...prev,
@@ -235,15 +207,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Toggle mute
   const toggleMute = () => {
-    if (!tonePlayerRef.current) return;
-    
     const newMutedState = !playerState.isMuted;
-    
-    if (newMutedState) {
-      tonePlayerRef.current.volume.value = Tone.gainToDb(0);
-    } else {
-      tonePlayerRef.current.volume.value = Tone.gainToDb(playerState.volume);
-    }
     
     setPlayerState(prev => ({
       ...prev,
@@ -286,31 +250,39 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }));
   };
 
-  // Get audio data for visualizations
+  // Get audio data for visualizations - enhanced to return more realistic mock data
   const getAudioData = () => {
-    // Generate mock audio data for visualization demo purposes
-    // In a real implementation, this would use the analyzers
+    // Generate more pronounced mock audio data for better visualization
+    const time = Date.now() / 1000;
     
+    // Create waveform with sine wave patterns
     const mockWaveform = Array.from(
       { length: 128 }, 
-      () => (Math.random() * 0.5) + (playerState.isPlaying ? 0.5 : 0)
-    );
-    
-    const mockFrequency = Array.from(
-      { length: 128 },
       (_, i) => {
-        // Create a curve that peaks in the mids for more realistic frequency data
         const normalizedIndex = i / 128;
-        const value = Math.sin(normalizedIndex * Math.PI) * 
-                    (playerState.isPlaying ? 0.8 : 0.1) * 
-                    (Math.random() * 0.4 + 0.6);
-        return value;
+        const baseValue = Math.sin(normalizedIndex * Math.PI * 4 + time * 2) * 0.5 + 0.5;
+        return playerState.isPlaying ? baseValue : baseValue * 0.1;
       }
     );
     
+    // Create frequency data with more variation
+    const mockFrequency = Array.from(
+      { length: 128 },
+      (_, i) => {
+        const normalizedIndex = i / 128;
+        // Create a curve that peaks in the mids
+        const baseValue = Math.sin(normalizedIndex * Math.PI) * 0.8;
+        // Add some variance based on time
+        const timeVariance = Math.sin(time * 3 + i * 0.2) * 0.3;
+        const value = (baseValue + timeVariance) * (playerState.isPlaying ? 1 : 0.1);
+        return Math.max(0, value); // Ensure no negative values
+      }
+    );
+    
+    // Create a pulsing amplitude based on time
     const mockAmplitude = playerState.isPlaying ? 
-      Math.random() * 0.3 + 0.7 : 
-      Math.random() * 0.1;
+      (Math.sin(time * 2) * 0.2 + 0.8) : 
+      0.1;
     
     return {
       waveform: mockWaveform,
@@ -319,19 +291,24 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   };
 
-  // Start visualization loop
+  // Start visualization loop - improved to ensure it runs smoothly
   const startVisualizationLoop = () => {
-    if (rafIdRef.current) return;
+    if (rafIdRef.current) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
     
-    const updateLoop = () => {
-      // In a real app, this would analyze actual audio data
-      // and update state accordingly
+    let lastTime = performance.now();
+    const updateLoop = (currentTime: number) => {
+      // Calculate delta time for smoother animation
+      const deltaTime = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
       
-      // For our mock, we'll just update the current time
+      // Update player state for time tracking (more realistic timing)
       setPlayerState(prev => {
         if (!prev.isPlaying || !prev.currentTrack) return prev;
         
-        const newTime = prev.currentTime + 0.1;
+        const newTime = prev.currentTime + deltaTime;
         
         // Check if we've reached the end of the track
         if (newTime >= prev.currentTrack.duration) {
@@ -364,8 +341,10 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  // Cleanup on unmount
+  // Auto-initialize audio for demo purposes
   useEffect(() => {
+    initializeAudio().catch(console.error);
+    
     return () => {
       stopVisualizationLoop();
       if (tonePlayerRef.current) {

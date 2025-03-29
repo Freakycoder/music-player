@@ -109,7 +109,7 @@ const ArtistPage: React.FC<ArtistPageProps> = ({ artist }) => {
               playTrack(artist.topTracks[0]);
             }
           }}
-          className="bg-green-500 hover:bg-green-600 text-white rounded-full px-8 py-3 flex items-center"
+          className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 py-3 flex items-center"
         >
           <PlayIcon className="h-5 w-5 mr-2" />
           Play
@@ -162,7 +162,7 @@ const ArtistPage: React.FC<ArtistPageProps> = ({ artist }) => {
                   <motion.div 
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 2 }}
-                    className="w-4 h-4 text-green-500"
+                    className="w-4 h-4 text-purple-600"
                   >
                     <span className="sr-only">Now playing</span>
                     ♫

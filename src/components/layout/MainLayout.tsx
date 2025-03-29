@@ -11,6 +11,7 @@ import {
   Rss as RssIcon 
 } from 'lucide-react';
 import MiniPlayer from '../player/MiniPlayer';
+import AnimatedBackground from './AnimatedBackground';
 import { usePlayer } from '../../contexts/PlayerContext';
 
 interface MainLayoutProps {
@@ -35,13 +36,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex h-screen bg-zinc-900 text-zinc-100 overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
+      {/* Animated Background that stays consistent across routes */}
+      <AnimatedBackground />
+      
       {/* Sidebar */}
       <motion.div 
         initial={{ x: -280 }}
         animate={{ x: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="w-64 flex-shrink-0 bg-black p-6 flex flex-col"
+        className="w-64 flex-shrink-0 bg-black/80 backdrop-blur-md p-6 flex flex-col relative z-20"
       >
         {/* Logo */}
         <Link href="/" className="mb-8 flex items-center">
@@ -131,19 +135,22 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </motion.div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
         {/* Top Bar */}
         <motion.div 
           initial={{ y: -50 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
-          className="h-16 flex-shrink-0 bg-zinc-800/50 backdrop-blur-md flex items-center justify-between px-8 border-b border-zinc-800"
+          className="h-16 flex-shrink-0 flex items-center justify-between px-8 border-b border-zinc-800/20 backdrop-blur-md relative z-10"
+          style={{
+            background: 'rgba(0, 0, 0, 0.7)'
+          }}
         >
           {/* Navigation Buttons */}
           <div className="flex space-x-2">
             <button
               onClick={() => router.back()}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                 <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
@@ -151,7 +158,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </button>
             <button
               onClick={() => router.forward()}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                 <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
@@ -164,17 +171,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-medium"
+              className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-medium shadow-lg"
             >
               A
             </motion.div>
-            <span className="font-medium">Alex Johnson</span>
+            <span className="font-medium text-white">Alex Johnson</span>
           </div>
         </motion.div>
 
         {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto p-8">
-          {children}
+        <main className="flex-1 overflow-y-auto p-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="h-full"
+          >
+            {children}
+          </motion.div>
         </main>
 
         {/* Now Playing Bar (conditional) */}
@@ -183,7 +198,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             initial={{ y: 100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="h-20 bg-zinc-800/90 backdrop-blur-md border-t border-zinc-700 flex items-center px-4"
+            className="h-20 backdrop-blur-md border-t border-zinc-700/20 flex items-center px-4 relative z-10"
+            style={{
+              background: 'rgba(0, 0, 0, 0.7)'
+            }}
           >
             <MiniPlayer />
           </motion.div>

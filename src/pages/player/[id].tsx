@@ -25,7 +25,6 @@ import {
   Sliders as AdjustmentsIcon,
   BarChart as ChartBarIcon,
   Circle as DotsCircleHorizontalIcon,
-//   Cube as CubeTransparentIcon,
 } from 'lucide-react';
 
 import MainLayout from '../../components/layout/MainLayout';
@@ -71,7 +70,6 @@ const PlayerPage: React.FC<PlayerPageProps> = ({ track, recommendedTracks }) => 
     { value: 'frequency', label: 'Frequency', icon: AdjustmentsIcon },
     { value: 'circular', label: 'Circular', icon: DotsCircleHorizontalIcon },
     { value: 'particles', label: 'Particles', icon: ViewBoardsIcon },
-    // { value: '3d', label: '3D', icon: CubeTransparentIcon },
   ];
   
   return (
@@ -175,7 +173,7 @@ const PlayerPage: React.FC<PlayerPageProps> = ({ track, recommendedTracks }) => 
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.1, ease: "linear" }}
-                    className="absolute h-full bg-white group-hover:bg-green-500"
+                    className="absolute h-full bg-white group-hover:bg-purple-500"
                   />
                   
                   <input

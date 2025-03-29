@@ -81,7 +81,7 @@ const LikedSongsPage: React.FC = () => {
                     <motion.div 
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 2 }}
-                      className="w-4 h-4 text-green-500"
+                      className="w-4 h-4 text-purple-600"
                     >
                       <span className="sr-only">Now playing</span>
                       ♫
