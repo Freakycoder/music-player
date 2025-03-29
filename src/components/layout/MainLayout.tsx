@@ -10,8 +10,8 @@ import {
   PlusCircle as PlusCircleIcon, 
   Rss as RssIcon 
 } from 'lucide-react';
-import MiniPlayer from '../components/player/MiniPlayer';
-import { usePlayer } from '../contexts/PlayerContext';
+import MiniPlayer from '../player/MiniPlayer';
+import { usePlayer } from '../../contexts/PlayerContext';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -69,7 +69,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         : 'text-zinc-400 hover:text-white'
                     }`}
                   >
-                    <item.icon className="h-5 w-5 mr-3" />
+                    <item.icon size={20} className="mr-3" />
                     <span>{item.name}</span>
                   </motion.div>
                 </Link>
