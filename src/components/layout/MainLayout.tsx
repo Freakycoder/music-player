@@ -73,7 +73,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         : 'text-zinc-400 hover:text-white'
                     }`}
                   >
-                    <item.icon size={20} className="mr-3" />
+                    <item.icon size={20} className="hover:text-purple-500 mr-3" />
                     <span className='hover:text-purple-500'>{item.name}</span>
                   </motion.div>
                 </Link>
