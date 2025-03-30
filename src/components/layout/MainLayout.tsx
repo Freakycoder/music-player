@@ -70,10 +70,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     className={`flex items-center p-2 rounded-md ${
                       isActive(item.path)
                         ? 'bg-zinc-800 text-white'
-                        : 'text-purple-500 hover:text-white'
+                        : 'text-zinc-400 hover:text-purple-500'
                     }`}
                   >
-                    <item.icon size={20} className=" mr-3" />
+                    <item.icon size={20} className="mr-3" />
                     <span >{item.name}</span>
                   </motion.div>
                 </Link>
