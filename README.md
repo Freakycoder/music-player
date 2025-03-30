@@ -6,6 +6,10 @@ The **Music Player** is a web-based music streaming application designed to prov
 
 This application allows users to browse, play, and manage their favorite songs effortlessly. With a clean UI, smooth transitions, and optimized performance, it ensures a delightful music-listening experience. Whether you want to create personalized playlists, search for specific tracks, or enjoy seamless playback, this Music Player has you covered.
 
+## Live Link
+
+**lyricon.vercel.app**
+
 ## Features
 
 - **Intuitive UI** – A modern and elegant design that enhances usability and accessibility.
