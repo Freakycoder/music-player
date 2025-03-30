@@ -67,14 +67,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   <motion.div
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`flex items-center p-2 hover:text-purple-500 rounded-md ${
+                    className={`flex items-center p-2 rounded-md ${
                       isActive(item.path)
                         ? 'bg-zinc-800 text-white'
                         : 'text-zinc-400 hover:text-white'
                     }`}
                   >
                     <item.icon size={20} className="mr-3" />
-                    <span>{item.name}</span>
+                    <span className='hover:text-purple-500'>{item.name}</span>
                   </motion.div>
                 </Link>
               </li>
